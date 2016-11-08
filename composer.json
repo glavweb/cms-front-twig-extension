@@ -15,6 +15,7 @@
     "require": {
         "php": ">=5.5.9",
         "twig/twig": "^1.26",
+        "symfony/http-foundation": "~2.8.13|~3.1.6|~3.2",
         "glavweb/cms-rest-client": "~0.1",
         "glavweb/cms-content-block": "~0.3",
         "glavweb/cms-composite-object": "~0.1"
