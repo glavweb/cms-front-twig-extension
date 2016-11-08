@@ -1,0 +1,26 @@
+{
+    "name": "glavweb/cms-twig-extension",
+    "description": "GLAVWEB.cms CmsTwigExtension package",
+    "authors": [
+        {
+            "name": "nilov",
+            "email": "nilov@glavweb.ru",
+            "homepage": "http://glavweb.ru"
+        },
+        {
+            "name": "GLAVWEB Community",
+            "homepage": "https://github.com/glavweb/cms-twig-extension/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.9",
+        "twig/twig": "^1.26",
+        "glavweb/cms-rest-client": "~0.1",
+        "glavweb/cms-content-block": "~0.3",
+        "glavweb/cms-composite-object": "~0.1"
+
+    },
+    "autoload": {
+        "psr-4": { "Glavweb\\CmsTwigExtension\\": "src/" }
+    }
+}
