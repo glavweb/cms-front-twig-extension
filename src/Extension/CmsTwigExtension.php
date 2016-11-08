@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Glavweb\CmsContentBlock\Service;
+namespace Glavweb\CmsTwigExtension\Extension;
 
 use Symfony\Component\HttpFoundation\Session\Session;
 use Glavweb\CmsRestClient\CmsRestClient;
