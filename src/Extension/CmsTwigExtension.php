@@ -50,6 +50,11 @@ class CmsTwigExtension extends \Twig_Extension
     private $cmsBaseUrl;
 
     /**
+     * @var bool
+     */
+    private $editable;
+
+    /**
      * TwigExtension constructor.
      *
      * @param Session                $session
@@ -57,14 +62,16 @@ class CmsTwigExtension extends \Twig_Extension
      * @param ContentBlockService    $contentBlockService
      * @param CompositeObjectService $compositeObjectService
      * @param string                 $cmsBaseUrl
+     * @param bool                   $editable
      */
-    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl)
+    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl, $editable = false)
     {
         $this->session                = $session;
         $this->cmsRestClient          = $cmsRestClient;
         $this->contentBlockService    = $contentBlockService;
         $this->compositeObjectService = $compositeObjectService;
         $this->cmsBaseUrl             = $cmsBaseUrl;
+        $this->editable               = $editable;
     }
 
     /**
@@ -128,16 +135,9 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function editable($category, $blockName)
     {
-        $session             = $this->session;
-        $cmsRestClient       = $this->cmsRestClient;
         $contentBlockService = $this->contentBlockService;
 
-        $isEditable =
-            $session->has('api_token') &&
-            $cmsRestClient->validateToken($session->get('api_token'))
-        ;
-
-        if ($isEditable) {
+        if ($this->isEditable()) {
             return $contentBlockService->editable($category, $blockName);
         }
 
@@ -152,20 +152,28 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function editableObject($id)
     {
-        $session                = $this->session;
-        $cmsRestClient          = $this->cmsRestClient;
         $compositeObjectService = $this->compositeObjectService;
 
-        $isEditable =
-            $session->has('api_token') &&
-            $cmsRestClient->validateToken($session->get('api_token'))
-        ;
-
-        if ($isEditable) {
+        if ($this->isEditable()) {
             return $compositeObjectService->editable($id);
         }
 
         return '';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEditable()
+    {
+        $session       = $this->session;
+        $cmsRestClient = $this->cmsRestClient;
+
+        return
+            $this->editable &&
+            $session->has('api_token') &&
+            $cmsRestClient->validateToken($session->get('api_token'))
+            ;
     }
 
     /**
