@@ -96,7 +96,8 @@ class CmsTwigExtension extends \Twig_Extension
     public function getFilters()
     {
         return [
-            new \Twig_SimpleFilter('content', [$this, 'content'])
+            new \Twig_SimpleFilter('content', [$this, 'content']),
+            new \Twig_SimpleFilter('filter', [$this, 'listFilter'])
         ];
     }
 
@@ -173,7 +174,7 @@ class CmsTwigExtension extends \Twig_Extension
             $this->editable &&
             $session->has('api_token') &&
             $cmsRestClient->validateToken($session->get('api_token'))
-            ;
+        ;
     }
 
     /**
@@ -207,5 +208,25 @@ class CmsTwigExtension extends \Twig_Extension
     public function cmsAsset($resource)
     {
         return $this->cmsBaseUrl . '/' . $resource;
+    }
+
+    /**
+     * @param array $list
+     * @param array $filters
+     * @return array
+     */
+    public function listFilter(array $list, array $filters)
+    {
+        return array_filter($list, function ($item) use ($filters) {
+            foreach ($filters as $filter) {
+                foreach ($filter as $filterName => $filterValue) {
+                    if (!isset($item[$filterName]) || $item[$filterName] != $filterValue) {
+                        return false;
+                    }
+
+                    return true;
+                }
+            }
+        });
     }
 }
