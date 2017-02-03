@@ -55,6 +55,16 @@ class CmsTwigExtension extends \Twig_Extension
     private $editable;
 
     /**
+     * @var bool
+     */
+    private $markupMode;
+
+    /**
+     * @var
+     */
+    private $apiBaseUrl;
+
+    /**
      * TwigExtension constructor.
      *
      * @param Session                $session
@@ -63,15 +73,18 @@ class CmsTwigExtension extends \Twig_Extension
      * @param CompositeObjectService $compositeObjectService
      * @param string                 $cmsBaseUrl
      * @param bool                   $editable
+     * @param bool                   $markupMode
      */
-    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl, $editable = false)
+    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl, $apiBaseUrl, $editable = false, $markupMode = false)
     {
         $this->session                = $session;
         $this->cmsRestClient          = $cmsRestClient;
         $this->contentBlockService    = $contentBlockService;
         $this->compositeObjectService = $compositeObjectService;
         $this->cmsBaseUrl             = $cmsBaseUrl;
+        $this->apiBaseUrl             = $apiBaseUrl;
         $this->editable               = $editable;
+        $this->markupMode             = $markupMode;
     }
 
     /**
@@ -86,6 +99,7 @@ class CmsTwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('editable_object', [$this, 'editableObject'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('objects', [$this, 'getObjects']),
             new \Twig_SimpleFunction('cms_asset', [$this, 'cmsAsset']),
+            new \Twig_SimpleFunction('cms_object_url', [$this, 'cmsObjectUrl']),
             new \Twig_SimpleFunction('spaceless', [$this, 'spaceless']),
         ];
     }
@@ -174,7 +188,7 @@ class CmsTwigExtension extends \Twig_Extension
             $this->editable &&
             $session->has('api_token') &&
             $cmsRestClient->validateToken($session->get('api_token'))
-        ;
+            ;
     }
 
     /**
@@ -207,7 +221,22 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function cmsAsset($resource)
     {
+        if ($this->markupMode) {
+            return '/' . $resource;
+        }
+
         return $this->cmsBaseUrl . '/' . $resource;
+    }
+
+    /**
+     * CMS object URL
+     *
+     * @param string $className
+     * @return string
+     */
+    public function cmsObjectUrl($className)
+    {
+        return $this->apiBaseUrl . '/composite-object/objects?className=' . $className;
     }
 
     /**
