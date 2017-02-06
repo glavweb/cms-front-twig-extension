@@ -11,6 +11,8 @@
 
 namespace Glavweb\CmsTwigExtension\Extension;
 
+use Glavweb\CmsContentBlock\Service\OptionService;
+use Glavweb\CmsContentBlock\Service\OptionServiceService;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Glavweb\CmsRestClient\CmsRestClient;
 use Glavweb\CmsContentBlock\Service\ContentBlockService;
@@ -38,6 +40,11 @@ class CmsTwigExtension extends \Twig_Extension
      * @var ContentBlockService
      */
     private $contentBlockService;
+
+    /**
+     * @var OptionService
+     */
+    private $optionService;
 
     /**
      * @var CompositeObjectService
@@ -70,16 +77,18 @@ class CmsTwigExtension extends \Twig_Extension
      * @param Session                $session
      * @param CmsRestClient          $cmsRestClient
      * @param ContentBlockService    $contentBlockService
+     * @param OptionService          $optionService
      * @param CompositeObjectService $compositeObjectService
      * @param string                 $cmsBaseUrl
      * @param bool                   $editable
      * @param bool                   $markupMode
      */
-    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl, $apiBaseUrl, $editable = false, $markupMode = false)
+    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, OptionService $optionService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl, $apiBaseUrl, $editable = false, $markupMode = false)
     {
         $this->session                = $session;
         $this->cmsRestClient          = $cmsRestClient;
         $this->contentBlockService    = $contentBlockService;
+        $this->optionService          = $optionService;
         $this->compositeObjectService = $compositeObjectService;
         $this->cmsBaseUrl             = $cmsBaseUrl;
         $this->apiBaseUrl             = $apiBaseUrl;
@@ -98,6 +107,7 @@ class CmsTwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('editable', [$this, 'editable'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('editable_object', [$this, 'editableObject'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('objects', [$this, 'getObjects']),
+            new \Twig_SimpleFunction('option', [$this, 'option']),
             new \Twig_SimpleFunction('cms_asset', [$this, 'cmsAsset']),
             new \Twig_SimpleFunction('cms_object_url', [$this, 'cmsObjectUrl']),
             new \Twig_SimpleFunction('spaceless', [$this, 'spaceless']),
@@ -174,6 +184,21 @@ class CmsTwigExtension extends \Twig_Extension
         }
 
         return '';
+    }
+
+    /**
+     * Get option
+     *
+     * @param string $category
+     * @param string $optionName
+     * @param string $default
+     * @return string
+     */
+    public function option($category, $optionName, $default = null)
+    {
+        $optionService = $this->optionService;
+
+        return $optionService->getOption($category, $optionName, $default);
     }
 
     /**
