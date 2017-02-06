@@ -148,6 +148,10 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function content($category, $blockName, $default = null)
     {
+        if ($this->markupMode) {
+            return $default;
+        }
+
         $contentBlockService = $this->contentBlockService;
 
         return $contentBlockService->getContentBlock($category, $blockName, $default);
@@ -160,6 +164,10 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function editable($category, $blockName)
     {
+        if ($this->markupMode) {
+            return '';
+        }
+
         $contentBlockService = $this->contentBlockService;
 
         if ($this->isEditable()) {
@@ -177,6 +185,10 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function editableObject($id)
     {
+        if ($this->markupMode) {
+            return '';
+        }
+
         $compositeObjectService = $this->compositeObjectService;
 
         if ($this->isEditable()) {
@@ -196,6 +208,10 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function option($category, $optionName, $default = null)
     {
+        if ($this->markupMode) {
+            return $default;
+        }
+
         $optionService = $this->optionService;
 
         return $optionService->getOption($category, $optionName, $default);
