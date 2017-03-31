@@ -11,12 +11,11 @@
 
 namespace Glavweb\CmsTwigExtension\Extension;
 
-use Glavweb\CmsContentBlock\Service\OptionService;
-use Glavweb\CmsContentBlock\Service\OptionServiceService;
+use Glavweb\CmsCompositeObject\Manager\CompositeObjectManager;
+use Glavweb\CmsContentBlock\Manager\OptionManager;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Glavweb\CmsRestClient\CmsRestClient;
-use Glavweb\CmsContentBlock\Service\ContentBlockService;
-use Glavweb\CmsCompositeObject\Service\CompositeObjectService;
+use Glavweb\CmsContentBlock\Manager\ContentBlockManager;
 
 /**
  * Class CmsTwigExtension
@@ -37,19 +36,19 @@ class CmsTwigExtension extends \Twig_Extension
     private $cmsRestClient;
 
     /**
-     * @var ContentBlockService
+     * @var ContentBlockManager
      */
-    private $contentBlockService;
+    private $contentBlockManager;
 
     /**
-     * @var OptionService
+     * @var OptionManager
      */
-    private $optionService;
+    private $optionManager;
 
     /**
-     * @var CompositeObjectService
+     * @var CompositeObjectManager
      */
-    private $compositeObjectService;
+    private $compositeObjectManager;
 
     /**
      * @var string
@@ -76,20 +75,20 @@ class CmsTwigExtension extends \Twig_Extension
      *
      * @param Session                $session
      * @param CmsRestClient          $cmsRestClient
-     * @param ContentBlockService    $contentBlockService
-     * @param OptionService          $optionService
-     * @param CompositeObjectService $compositeObjectService
+     * @param ContentBlockManager    $contentBlockManager
+     * @param OptionManager          $optionManager
+     * @param CompositeObjectManager $compositeObjectManager
      * @param string                 $cmsBaseUrl
      * @param bool                   $editable
      * @param bool                   $markupMode
      */
-    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockService $contentBlockService, OptionService $optionService, CompositeObjectService $compositeObjectService,  $cmsBaseUrl, $apiBaseUrl, $editable = false, $markupMode = false)
+    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockManager $contentBlockManager, OptionManager $optionManager, CompositeObjectManager $compositeObjectManager, $cmsBaseUrl, $apiBaseUrl, $editable = false, $markupMode = false)
     {
         $this->session                = $session;
         $this->cmsRestClient          = $cmsRestClient;
-        $this->contentBlockService    = $contentBlockService;
-        $this->optionService          = $optionService;
-        $this->compositeObjectService = $compositeObjectService;
+        $this->contentBlockManager    = $contentBlockManager;
+        $this->optionManager          = $optionManager;
+        $this->compositeObjectManager = $compositeObjectManager;
         $this->cmsBaseUrl             = $cmsBaseUrl;
         $this->apiBaseUrl             = $apiBaseUrl;
         $this->editable               = $editable;
@@ -152,9 +151,9 @@ class CmsTwigExtension extends \Twig_Extension
             return $default;
         }
 
-        $contentBlockService = $this->contentBlockService;
+        $contentBlockManager = $this->contentBlockManager;
 
-        return $contentBlockService->getContentBlock($category, $blockName, $default);
+        return $contentBlockManager->getContentBlock($category, $blockName, $default);
     }
 
     /**
@@ -168,10 +167,10 @@ class CmsTwigExtension extends \Twig_Extension
             return '';
         }
 
-        $contentBlockService = $this->contentBlockService;
+        $contentBlockManager = $this->contentBlockManager;
 
         if ($this->isEditable()) {
-            return $contentBlockService->editable($category, $blockName);
+            return $contentBlockManager->editable($category, $blockName);
         }
 
         return '';
@@ -189,10 +188,10 @@ class CmsTwigExtension extends \Twig_Extension
             return '';
         }
 
-        $compositeObjectService = $this->compositeObjectService;
+        $compositeObjectManager = $this->compositeObjectManager;
 
         if ($this->isEditable()) {
-            return $compositeObjectService->editable($id);
+            return $compositeObjectManager->editable($id);
         }
 
         return '';
@@ -212,9 +211,9 @@ class CmsTwigExtension extends \Twig_Extension
             return $default;
         }
 
-        $optionService = $this->optionService;
+        $optionManager = $this->optionManager;
 
-        return $optionService->getOption($category, $optionName, $default);
+        return $optionManager->getOption($category, $optionName, $default);
     }
 
     /**
@@ -240,7 +239,7 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function getObjects($className)
     {
-        return $this->compositeObjectService->getObjectsByClassName($className);
+        return $this->compositeObjectManager->getObjectsByClassName($className);
     }
 
     /**
@@ -263,7 +262,7 @@ class CmsTwigExtension extends \Twig_Extension
     public function cmsAsset($resource)
     {
         if ($this->markupMode) {
-            return '/' . $resource;
+            return $resource;
         }
 
         return $this->cmsBaseUrl . '/' . $resource;
