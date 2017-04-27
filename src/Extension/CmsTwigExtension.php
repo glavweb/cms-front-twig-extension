@@ -262,7 +262,7 @@ class CmsTwigExtension extends \Twig_Extension
     public function cmsAsset($resource)
     {
         if ($this->markupMode) {
-            return $resource;
+            return '/' . $resource;
         }
 
         return $this->cmsBaseUrl . '/' . $resource;
