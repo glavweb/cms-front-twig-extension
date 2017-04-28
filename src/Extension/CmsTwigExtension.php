@@ -289,13 +289,31 @@ class CmsTwigExtension extends \Twig_Extension
         return array_filter($list, function ($item) use ($filters) {
             foreach ($filters as $filter) {
                 foreach ($filter as $filterName => $filterValue) {
-                    if (!isset($item[$filterName]) || $item[$filterName] != $filterValue) {
-                        return false;
+                    if (strpos($filterName, '.')) {
+                        $filterNameParts = explode('.', $filterName);
+
+                        $itemValue = $item;
+                        foreach ($filterNameParts as $filterNamePart) {
+                            if (!isset($itemValue[$filterNamePart])) {
+                                return false;
+                            }
+
+                            $itemValue = $itemValue[$filterNamePart];
+                        }
+
+                    } else {
+                        if (!isset($item[$filterName])) {
+                            return false;
+                        }
+
+                        $itemValue = $item[$filterName];
                     }
 
-                    return true;
+                    return $itemValue == $filterValue;
                 }
             }
+
+            return false;
         });
     }
 }
