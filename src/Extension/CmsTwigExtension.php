@@ -79,10 +79,19 @@ class CmsTwigExtension extends \Twig_Extension
      * @param OptionManager          $optionManager
      * @param CompositeObjectManager $compositeObjectManager
      * @param string                 $cmsBaseUrl
+     * @param string                 $apiBaseUrl
      * @param bool                   $editable
      * @param bool                   $markupMode
      */
-    public function __construct(Session $session, CmsRestClient $cmsRestClient, ContentBlockManager $contentBlockManager, OptionManager $optionManager, CompositeObjectManager $compositeObjectManager, $cmsBaseUrl, $apiBaseUrl, $editable = false, $markupMode = false)
+    public function __construct(Session $session,
+                                CmsRestClient $cmsRestClient,
+                                ContentBlockManager $contentBlockManager,
+                                OptionManager $optionManager,
+                                CompositeObjectManager $compositeObjectManager,
+                                string $cmsBaseUrl,
+                                string $apiBaseUrl,
+                                bool $editable = false,
+                                bool $markupMode = false)
     {
         $this->session                = $session;
         $this->cmsRestClient          = $cmsRestClient;
@@ -98,7 +107,7 @@ class CmsTwigExtension extends \Twig_Extension
     /**
      * @return array
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new \Twig_SimpleFunction('get', [$this, 'getJson']),
@@ -106,6 +115,7 @@ class CmsTwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('editable', [$this, 'editable'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('editable_object', [$this, 'editableObject'], ['is_safe' => ['html']]),
             new \Twig_SimpleFunction('objects', [$this, 'getObjects']),
+            new \Twig_SimpleFunction('object', [$this, 'getObject']),
             new \Twig_SimpleFunction('option', [$this, 'option']),
             new \Twig_SimpleFunction('cms_asset', [$this, 'cmsAsset']),
             new \Twig_SimpleFunction('cms_object_url', [$this, 'cmsObjectUrl']),
@@ -116,7 +126,7 @@ class CmsTwigExtension extends \Twig_Extension
     /**
      * @return array
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new \Twig_SimpleFilter('content', [$this, 'content']),
@@ -128,7 +138,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $url
      * @return array
      */
-    public function getJson($url)
+    public function getJson(string $url): array
     {
         $cmsRestClient = $this->cmsRestClient;
 
@@ -145,7 +155,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $default
      * @return string
      */
-    public function content($category, $blockName, $default = null)
+    public function content(string $category, string $blockName, string $default = null): string
     {
         if ($this->markupMode) {
             return $default;
@@ -161,7 +171,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $blockName
      * @return string
      */
-    public function editable($category, $blockName)
+    public function editable(string $category, string $blockName): string
     {
         if ($this->markupMode) {
             return '';
@@ -182,7 +192,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param int $id
      * @return string
      */
-    public function editableObject($id)
+    public function editableObject(int $id): string
     {
         if ($this->markupMode) {
             return '';
@@ -205,7 +215,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $default
      * @return string
      */
-    public function option($category, $optionName, $default = null)
+    public function option(string $category, string $optionName, string $default = null): string
     {
         if ($this->markupMode) {
             return $default;
@@ -219,7 +229,7 @@ class CmsTwigExtension extends \Twig_Extension
     /**
      * @return bool
      */
-    public function isEditable()
+    public function isEditable(): bool
     {
         $session       = $this->session;
         $cmsRestClient = $this->cmsRestClient;
@@ -228,18 +238,36 @@ class CmsTwigExtension extends \Twig_Extension
             $this->editable &&
             $session->has('api_token') &&
             $cmsRestClient->validateToken($session->get('api_token'))
-            ;
+        ;
     }
 
     /**
      * Get composite objects
      *
      * @param string $className
+     * @param array $filter
+     * @param array $sort
+     * @param int|null $limit
+     * @param int|null $skip
+     * @param array $projection
      * @return array
      */
-    public function getObjects($className)
+    public function getObjects(string $className, array $filter = [], $sort = [], int $limit = null, int $skip = null, array $projection = []): array
     {
-        return $this->compositeObjectManager->getObjectsByClassName($className);
+        return $this->compositeObjectManager->getObjects($className, $filter, $sort, $limit, $skip, $projection);
+    }
+
+    /**
+     * Get composite objects
+     *
+     * @param string $className
+     * @param int $id
+     * @param array $projection
+     * @return array
+     */
+    public function getObject(string $className, int $id, array $projection = []): array
+    {
+        return $this->compositeObjectManager->getObject($className, $id, $projection);
     }
 
     /**
@@ -248,7 +276,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $value
      * @return string
      */
-    public function spaceless($value)
+    public function spaceless(string $value): string
     {
         return trim(preg_replace('/>\s+</', '><', $value));
     }
@@ -259,7 +287,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $resource
      * @return string
      */
-    public function cmsAsset($resource)
+    public function cmsAsset(string $resource): string
     {
         if ($this->markupMode) {
             return '/' . $resource;
@@ -274,7 +302,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $className
      * @return string
      */
-    public function cmsObjectUrl($className)
+    public function cmsObjectUrl(string $className): string
     {
         return $this->apiBaseUrl . '/composite-object/objects?className=' . $className;
     }
@@ -284,7 +312,7 @@ class CmsTwigExtension extends \Twig_Extension
      * @param array $filters
      * @return array
      */
-    public function listFilter(array $list, array $filters)
+    public function listFilter(array $list, array $filters): array
     {
         return array_filter($list, function ($item) use ($filters) {
             foreach ($filters as $filter) {
