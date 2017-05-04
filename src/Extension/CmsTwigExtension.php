@@ -119,6 +119,8 @@ class CmsTwigExtension extends \Twig_Extension
             new \Twig_SimpleFunction('option', [$this, 'option']),
             new \Twig_SimpleFunction('cms_asset', [$this, 'cmsAsset']),
             new \Twig_SimpleFunction('cms_object_url', [$this, 'cmsObjectUrl']),
+            new \Twig_SimpleFunction('api_url', [$this, 'apiUrl']),
+            new \Twig_SimpleFunction('captcha_image_src', [$this, 'captchaImageSrc']),
             new \Twig_SimpleFunction('spaceless', [$this, 'spaceless']),
         ];
     }
@@ -238,7 +240,7 @@ class CmsTwigExtension extends \Twig_Extension
             $this->editable &&
             $session->has('api_token') &&
             $cmsRestClient->validateToken($session->get('api_token'))
-        ;
+            ;
     }
 
     /**
@@ -304,7 +306,40 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function cmsObjectUrl(string $className): string
     {
-        return $this->apiBaseUrl . '/composite-object/objects?className=' . $className;
+        return $this->apiBaseUrl . '/composite-objects/' . $className;
+    }
+
+    /**
+     * Get API URL
+     *
+     * @param string $url
+     * @return string
+     */
+    public function apiUrl(string $url): string
+    {
+        return $this->apiBaseUrl . '/' . $url;
+    }
+
+    /**
+     * Get URL to Captcha image
+     *
+     * @param string $className
+     * @param string $token
+     * @param array $options
+     * @return string
+     */
+    public function captchaImageSrc(string $className, string $token, array $options = []): string
+    {
+        $queryParts = [];
+        foreach ($options as $name => $value) {
+            $queryParts[] = $name . '=' . $value;
+        }
+
+        $queryString = implode('&', $queryParts);
+
+        return $this->apiBaseUrl . '/composite-object-captcha/' . $className . '/' . $token
+            . ($queryString ? '?' . $queryString : '')
+            ;
     }
 
     /**
