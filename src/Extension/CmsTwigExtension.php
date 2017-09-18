@@ -191,10 +191,10 @@ class CmsTwigExtension extends \Twig_Extension
     /**
      * Editable object
      *
-     * @param int $id
+     * @param int|string $id
      * @return string
      */
-    public function editableObject(int $id): string
+    public function editableObject($id): string
     {
         if ($this->markupMode) {
             return '';
