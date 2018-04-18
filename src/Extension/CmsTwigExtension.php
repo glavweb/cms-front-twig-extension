@@ -215,9 +215,9 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $category
      * @param string $optionName
      * @param string $default
-     * @return string
+     * @return string|null
      */
-    public function option(string $category, string $optionName, string $default = null): string
+    public function option(string $category, string $optionName, string $default = null): ?string
     {
         if ($this->markupMode) {
             return $default;
