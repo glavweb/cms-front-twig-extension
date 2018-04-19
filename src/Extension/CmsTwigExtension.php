@@ -13,7 +13,6 @@ namespace Glavweb\CmsTwigExtension\Extension;
 
 use Glavweb\CmsCompositeObject\Manager\CompositeObjectManager;
 use Glavweb\CmsContentBlock\Manager\OptionManager;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Glavweb\CmsRestClient\CmsRestClient;
 use Glavweb\CmsContentBlock\Manager\ContentBlockManager;
 
@@ -25,11 +24,6 @@ use Glavweb\CmsContentBlock\Manager\ContentBlockManager;
  */
 class CmsTwigExtension extends \Twig_Extension
 {
-    /**
-     * @var Session
-     */
-    private $session;
-
     /**
      * @var CmsRestClient
      */
@@ -56,6 +50,11 @@ class CmsTwigExtension extends \Twig_Extension
     private $cmsBaseUrl;
 
     /**
+     * @var null|string
+     */
+    private $apiToken;
+
+    /**
      * @var bool
      */
     private $editable;
@@ -73,33 +72,34 @@ class CmsTwigExtension extends \Twig_Extension
     /**
      * TwigExtension constructor.
      *
-     * @param Session                $session
-     * @param CmsRestClient          $cmsRestClient
-     * @param ContentBlockManager    $contentBlockManager
-     * @param OptionManager          $optionManager
+     * @param CmsRestClient $cmsRestClient
+     * @param ContentBlockManager $contentBlockManager
+     * @param OptionManager $optionManager
      * @param CompositeObjectManager $compositeObjectManager
-     * @param string                 $cmsBaseUrl
-     * @param string                 $apiBaseUrl
-     * @param bool                   $editable
-     * @param bool                   $markupMode
+     * @param string $cmsBaseUrl
+     * @param string $apiBaseUrl
+     * @param string|null $apiToken
+     * @param bool $editable
+     * @param bool $markupMode
      */
-    public function __construct(Session $session,
-                                CmsRestClient $cmsRestClient,
-                                ContentBlockManager $contentBlockManager,
-                                OptionManager $optionManager,
-                                CompositeObjectManager $compositeObjectManager,
-                                string $cmsBaseUrl,
-                                string $apiBaseUrl,
-                                bool $editable = false,
-                                bool $markupMode = false)
-    {
-        $this->session                = $session;
+    public function __construct(
+        CmsRestClient $cmsRestClient,
+        ContentBlockManager $contentBlockManager,
+        OptionManager $optionManager,
+        CompositeObjectManager $compositeObjectManager,
+        string $cmsBaseUrl,
+        string $apiBaseUrl,
+        string $apiToken = null,
+        bool $editable = false,
+        bool $markupMode = false
+    ) {
         $this->cmsRestClient          = $cmsRestClient;
         $this->contentBlockManager    = $contentBlockManager;
         $this->optionManager          = $optionManager;
         $this->compositeObjectManager = $compositeObjectManager;
         $this->cmsBaseUrl             = $cmsBaseUrl;
         $this->apiBaseUrl             = $apiBaseUrl;
+        $this->apiToken               = $apiToken;
         $this->editable               = $editable;
         $this->markupMode             = $markupMode;
     }
@@ -233,13 +233,12 @@ class CmsTwigExtension extends \Twig_Extension
      */
     public function isEditable(): bool
     {
-        $session       = $this->session;
         $cmsRestClient = $this->cmsRestClient;
 
         return
             $this->editable &&
-            $session->has('api_token') &&
-            $cmsRestClient->validateToken($session->get('api_token'))
+            $this->apiToken &&
+            $cmsRestClient->validateToken($this->apiToken)
             ;
     }
 
