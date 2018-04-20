@@ -155,9 +155,10 @@ class CmsTwigExtension extends \Twig_Extension
      * @param string $category
      * @param string $blockName
      * @param string $default
+     * @param bool $wysiwyg
      * @return string
      */
-    public function content(string $category, string $blockName, string $default = null): string
+    public function content(string $category, string $blockName, string $default = null, $wysiwyg = false): string
     {
         if ($this->markupMode) {
             return $default;
@@ -165,7 +166,7 @@ class CmsTwigExtension extends \Twig_Extension
 
         $contentBlockManager = $this->contentBlockManager;
 
-        return $contentBlockManager->getContentBlock($category, $blockName, $default);
+        return $contentBlockManager->getContentBlock($category, $blockName, $default, $wysiwyg);
     }
 
     /**
@@ -239,7 +240,7 @@ class CmsTwigExtension extends \Twig_Extension
             $this->editable &&
             $this->apiToken &&
             $cmsRestClient->validateToken($this->apiToken)
-            ;
+        ;
     }
 
     /**
